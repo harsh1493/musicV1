@@ -55,14 +55,14 @@ class _FirstScreenState extends State<FirstScreen> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               automaticallyImplyLeading: false,
-              title: Center(
-                  child: Text(
+              centerTitle: true,
+              title: Text(
                 'Trending',
                 style: TextStyle(
                     fontSize: 25,
                     color: Colors.black,
                     fontWeight: FontWeight.bold),
-              )),
+              ),
             ),
             body: ListView(
               children: trackWidgets,

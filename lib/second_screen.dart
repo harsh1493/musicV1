@@ -1,9 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:music/bookmarks.dart';
 import 'musicProvider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondScreen extends StatefulWidget {
   final trackId;
@@ -18,6 +19,34 @@ class _SecondScreenState extends State<SecondScreen> {
   var trackMap = new Map();
   String lyrics;
   bool internetAvailable = true;
+
+  addToBookmarks() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> data = [
+      widget.trackDetails['track_name'],
+      widget.trackDetails['artist_name'],
+      widget.trackDetails['album_name'],
+      widget.trackDetails['explicit'] == 1 ? 'True' : 'False',
+      widget.trackDetails['rating'].toString(),
+      lyrics
+    ];
+    await prefs.setStringList(widget.trackId.toString(), data);
+    print('------------${prefs.getKeys().length}');
+  }
+
+  getBookmarks(String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //await prefs.remove('201279280');
+    List<String> data = prefs.getStringList(key);
+
+    return data;
+  }
+
+  void getAllKeys() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var keys = prefs.getKeys();
+    print(keys);
+  }
 
   void getDetails() async {
     MusicModel m = new MusicModel();
@@ -52,6 +81,17 @@ class _SecondScreenState extends State<SecondScreen> {
     }
   }
 
+  void bookMarkTrack() async {
+    String data;
+    print(widget.trackId);
+    await addToBookmarks();
+    List<String> value = await getBookmarks(widget.trackId.toString());
+    print('${widget.trackId.toString()}=======$value');
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return BookMarks();
+    }));
+  }
+
   @override
   void initState() {
     trackMap = widget.trackDetails;
@@ -82,6 +122,24 @@ class _SecondScreenState extends State<SecondScreen> {
             body: TrackInfo(
               lyrics: lyrics,
               trackInfo: trackMap,
+            ),
+            floatingActionButton: Visibility(
+              visible: widget.trackDetails.keys.length != 6,
+              child: FloatingActionButton(
+                tooltip: 'Bookmark this track ',
+                child: Icon(Icons.bookmark),
+                onPressed: () {
+                  bookMarkTrack();
+                  Fluttertoast.showToast(
+                      msg: "Track Bookmarked",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
+                },
+              ),
             ),
           )
         : Container(

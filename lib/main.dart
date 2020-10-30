@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music/bookmarks.dart';
 import 'package:music/first_screen.dart';
 import 'package:music/second_screen.dart';
 import 'loading_screen.dart';
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
         LoadingScreen.id: (context) => LoadingScreen(),
         FirstScreen.id: (context) => FirstScreen(),
         SecondScreen.id: (context) => SecondScreen(),
+        BookMarks.id: (context) => BookMarks(),
       },
     );
   }
