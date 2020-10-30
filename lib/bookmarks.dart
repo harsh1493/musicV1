@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:music/second_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,7 @@ class BookMarks extends StatefulWidget {
 }
 
 class _BookMarksState extends State<BookMarks> {
+  bool internetAvailable = true;
   List<StatefulWidget> trackWidgets = [];
   void populateBookmarks() async {
     //trackWidgets = [];
@@ -42,6 +45,23 @@ class _BookMarksState extends State<BookMarks> {
     //print('****${prefs.getKeys().length}');
   }
 
+  void checkConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        //print('connected');
+        setState(() {
+          internetAvailable = true;
+        });
+      }
+    } on SocketException catch (_) {
+      //print('not connected');
+      setState(() {
+        internetAvailable = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     // trackWidgets.clear();
@@ -52,33 +72,58 @@ class _BookMarksState extends State<BookMarks> {
 
   @override
   Widget build(BuildContext context) {
-    print(trackWidgets.length);
-
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Bookmarks',
-          style: TextStyle(
-              fontSize: 25, color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: trackWidgets.length,
-        itemBuilder: (BuildContext context, int index) {
-          return trackWidgets[index];
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Delete all bookmarks',
-        onPressed: () {
-          setState(() {
-            clearBookmarks();
-          });
-        },
-        child: Icon(Icons.clear),
-      ),
-    );
+    checkConnection();
+    return internetAvailable
+        ? Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(
+                'Bookmarks',
+                style: TextStyle(
+                    fontSize: 25,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            body: ListView.builder(
+              itemCount: trackWidgets.length,
+              itemBuilder: (BuildContext context, int index) {
+                return trackWidgets[index];
+              },
+            ),
+            floatingActionButton: FloatingActionButton(
+              tooltip: 'Delete all bookmarks',
+              onPressed: () {
+                setState(() {
+                  clearBookmarks();
+                });
+              },
+              child: Icon(Icons.clear),
+            ),
+          )
+        : Container(
+            padding: EdgeInsets.only(top: 140),
+            color: Color.fromRGBO(251, 251, 251, 1),
+            child: Column(
+              children: [
+                Image(
+                  image: AssetImage(
+                    'images/no_connection.gif',
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                Text(
+                  'Oops! \n No Internet Connection',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      decoration: TextDecoration.none,
+                      color: Colors.black,
+                      fontSize: 30),
+                ),
+              ],
+            ));
   }
 }
 
