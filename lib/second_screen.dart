@@ -16,7 +16,7 @@ class SecondScreen extends StatefulWidget {
 
 class _SecondScreenState extends State<SecondScreen> {
   var trackMap = new Map();
-  String lyrics = '';
+  String lyrics;
   bool internetAvailable = true;
 
   void getDetails() async {
@@ -131,9 +131,18 @@ class TrackInfo extends StatelessWidget {
               content: trackInfo['explicit'] == 1 ? 'True' : 'False'),
           InfoTile(
               title: 'Rating', content: trackInfo['track_rating'].toString()),
-          InfoTile(
-              title: 'Lyrics',
-              content: lyrics == null ? 'api call failed' : lyrics)
+          lyrics != '-' && lyrics != null
+              ? InfoTile(title: 'Lyrics', content: lyrics)
+              : SizedBox(
+                  height: 350,
+                  child: Container(
+                    padding: EdgeInsets.all(100),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 10,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  ),
+                ),
         ],
       ),
     );
